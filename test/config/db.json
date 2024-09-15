@@ -1,0 +1,20 @@
+{
+	"default": {
+		"write": [{
+			"host":"localhost",
+			"port":3306,
+			"database":"go_blog",
+			"username":"root",
+			"password":"rootad",
+			"charset":"utf8",
+			"timeOut":5000,
+			"writeTimeOut":5000,
+			"readTimeOut":5000,
+			"maxIdleConnect":100,
+			"maxOpenConnect":100
+		}],
+		"read": []
+	}
+
+
+}
