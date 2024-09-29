@@ -1,112 +1,134 @@
 package test
 
 import (
-	"bytes"
-	"crypto/aes"
-	"crypto/cipher"
-	"encoding/base64"
-	"encoding/hex"
-	"errors"
 	"fmt"
-	"go_blog/app/helper"
-	"math/rand"
+	"github.com/gorilla/websocket"
+	"go_web/app/core"
+	"log"
+	"net/http"
+	"net/url"
+	"strconv"
 	"testing"
+	"time"
 )
 
-var PwdKey = []byte("DIS**#KKKDJJSKDI")
+const (
+	// Time allowed to write a message to the peer.
+	writeWait = 10 * time.Second
 
-// PKCS7 填充模式
-func PKCS7Padding(ciphertext []byte, blockSize int) []byte {
-	padding := blockSize - len(ciphertext)%blockSize
-	//Repeat()函数的功能是把切片[]byte{byte(padding)}复制padding个，然后合并成新的字节切片返回
-	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
-	return append(ciphertext, padtext...)
+	// Time allowed to read the next pong message from the peer.
+	pongWait = 60 * time.Second
+
+	// Send pings to peer with this period. Must be less than pongWait.
+	pingPeriod = (pongWait * 9) / 10
+
+	// Maximum message size allowed from peer.
+	maxMessageSize = 512
+)
+
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true // 允许跨域请求
+	},
 }
 
-// 填充的反向操作，删除填充字符串
-func PKCS7UnPadding(origData []byte) ([]byte, error) {
-	//获取数据长度
-	length := len(origData)
-	if length == 0 {
-		return nil, errors.New("加密字符串错误！")
-	} else {
-		//获取填充字符串长度
-		unpadding := int(origData[length-1])
-		//截取切片，删除填充字节，并且返回明文
-		return origData[:(length - unpadding)], nil
+type Hub struct {
+	Clients    map[core.Int64]*Client
+	Register   chan *Client
+	Unregister chan *Client
+	Broadcast  chan []byte
+}
+
+func (this *Hub) Run() {
+	for {
+		select {
+		case client := <-this.Register:
+			this.Clients[(*client).Uuid] = client
+			msg := []byte("连接成功" + strconv.FormatInt(int64((*client).Uuid), 10))
+			client.Conn.WriteMessage(1, msg)
+		case client := <-this.Unregister:
+			if _, ok := this.Clients[(*client).Uuid]; ok {
+				delete(this.Clients, (*client).Uuid)
+				close(client.Send)
+			}
+		}
 	}
 }
 
-// 实现加密
-func AesEcrypt(origData []byte, key []byte) ([]byte, error) {
-	//创建加密算法实例
-	block, err := aes.NewCipher(key)
+var NewHub = &Hub{
+	Clients:    make(map[core.Int64]*Client),
+	Register:   make(chan *Client),
+	Unregister: make(chan *Client),
+	Broadcast:  make(chan []byte),
+}
+
+func echo(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		return nil, err
+		fmt.Println(err)
+		return
 	}
-	//获取块的大小
-	blockSize := block.BlockSize()
-	//对数据进行填充，让数据长度满足需求
-	origData = PKCS7Padding(origData, blockSize)
-	//采用AES加密方法中CBC加密模式
-	blocMode := cipher.NewCBCEncrypter(block, key[:blockSize])
-	crypted := make([]byte, len(origData))
-	//执行加密
-	blocMode.CryptBlocks(crypted, origData)
-	return crypted, nil
-}
 
-// 实现解密
-func AesDeCrypt(cypted []byte, key []byte) ([]byte, error) {
-	//创建加密算法实例
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		return nil, err
-	}
-	//获取块大小
-	blockSize := block.BlockSize()
-	//创建加密客户端实例
-	blockMode := cipher.NewCBCDecrypter(block, key[:blockSize])
-	origData := make([]byte, len(cypted))
-	//这个函数也可以用来解密
-	blockMode.CryptBlocks(origData, cypted)
-	//去除填充字符串
-	origData, err = PKCS7UnPadding(origData)
-	if err != nil {
-		return nil, err
-	}
-	return origData, err
-}
+	//defer conn.Close()
 
-// 加密base64
-func EnPwdCode(pwd []byte) (string, error) {
-	result, err := AesEcrypt(pwd, PwdKey)
+	u, err := url.Parse(r.URL.String())
 	if err != nil {
-		return "", err
-	}
-	return base64.StdEncoding.EncodeToString(result), err
-}
-
-// 解密
-func DePwdCode(pwd string) ([]byte, error) {
-	//解密base64字符串
-	pwdByte, err := base64.StdEncoding.DecodeString(pwd)
-	if err != nil {
-		return nil, err
-	}
-	//执行AES解密
-	return AesDeCrypt(pwdByte, PwdKey)
-
-}
-func generateRandomString(length int) string {
-	bytes := make([]byte, length/2)
-	if _, err := rand.Read(bytes); err != nil {
 		panic(err)
 	}
-	return hex.EncodeToString(bytes)
-}
-func TestUnit(t *testing.T) {
-	for i := int64(0); i < 10; i++ {
-		fmt.Println(helper.RandStr(32, i))
+	queryParams := u.Query()
+	atoi, _ := strconv.Atoi(queryParams.Get("uuid"))
+	uuid := core.Int64(atoi)
+
+	//atoi1, _ := strconv.Atoi(queryParams.Get("friend_uuid"))
+	//friend_uuid := core.Int64(atoi1)
+
+	meClient := &Client{
+		Hub:  NewHub,
+		Conn: conn,
+		Uuid: uuid,
+		Send: make(chan []byte),
 	}
+	//fmt.Println(meClient)
+	meClient.Hub.Register <- meClient
+	go meClient.Read()
+	go meClient.Write()
+}
+
+type Client struct {
+	Hub  *Hub
+	Conn *websocket.Conn
+	Send chan []byte
+	Uuid core.Int64
+}
+
+func (this *Client) Read() {
+	for {
+		mt, message, err := this.Conn.ReadMessage()
+		if err != nil {
+			fmt.Println("x1", err)
+			break
+		}
+		fmt.Println(mt, string(message))
+		this.Send <- message
+		fmt.Println("xxxxx")
+	}
+}
+
+func (this *Client) Write() {
+	fmt.Println("write start")
+	for {
+		err := this.Conn.WriteMessage(websocket.TextMessage, <-this.Send)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+
+}
+
+func TestUnit(t *testing.T) {
+	go NewHub.Run()
+	http.HandleFunc("/message", echo)
+	fmt.Println("Starting server on :8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }

@@ -18,7 +18,7 @@ type Redis struct {
 	Db       int
 }
 
-func RedisConfig() *map[string]RedisGroup {
+func RedisConfigLoad() *map[string]RedisGroup {
 	var instance = make(map[string]RedisGroup)
 	err, str := helper.ReadJsonFile("config/redis.json")
 	if err != nil {

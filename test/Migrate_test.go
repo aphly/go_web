@@ -2,15 +2,21 @@ package test
 
 import (
 	"fmt"
-	"go_blog/app"
-	"go_blog/app/http/model"
+	"go_web/app"
+	"go_web/app/http/model"
 	"testing"
 )
 
 var AutoTables = []any{
-	&model.User{},
-	&model.UserAuth{},
-	&model.Article{},
+	//&model.User{},
+	//&model.UserAuth{},
+	//&model.Article{},
+	//&model.Friend{},
+	//&model.FriendRequest{},
+
+	//&model.Chat{},
+	&model.ChatMessage{},
+	//&model.ChatMember{},
 }
 
 func TestMigrate(t *testing.T) {

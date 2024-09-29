@@ -1,0 +1,4 @@
+D:/go/go_web/app/http/controller/chat/Message.go:28
+[0.594ms] [rows:0] SELECT * FROM `friend` WHERE uuid=? AND friend_uuid=? LIMIT ?
+2024-09-20 14:10:28 D:/go/go_web/app/http/controller/chat/Message.go:28
+[0.435ms] [rows:0] SELECT * FROM `friend` WHERE uuid=? AND friend_uuid=? LIMIT ?

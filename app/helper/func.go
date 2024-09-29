@@ -1,7 +1,10 @@
 package helper
 
 import (
+	"fmt"
 	"math/rand"
+	"reflect"
+	"strings"
 	"time"
 )
 
@@ -27,4 +30,41 @@ func RandStr(lenNum int, diff ...int64) string {
 		str += chars[r.Intn(length)]
 	}
 	return str
+}
+
+func ToCamelCase(s string) string {
+	parts := strings.Split(s, "_")
+	for i := 1; i < len(parts); i++ {
+		parts[i] = strings.ToUpper(parts[i][0:1]) + strings.ToLower(parts[i][1:])
+	}
+	return strings.Join(parts, "")
+}
+
+func MapToStruct(m map[string]any, s any) error {
+	v := reflect.ValueOf(s)
+	if v.Kind() == reflect.Ptr && !v.Elem().CanSet() {
+		return fmt.Errorf("Converter: cannot set value to %T", s)
+	}
+
+	for k, i := range m {
+		if v.Kind() == reflect.Ptr {
+			v = v.Elem()
+		}
+		fmt.Println(k)
+
+		field := v.FieldByName(k)
+		fmt.Println(field)
+		if !field.IsValid() {
+			continue
+		}
+		if !field.CanSet() {
+			continue
+		}
+		val := reflect.ValueOf(i)
+		if field.Type() != val.Type() {
+			return fmt.Errorf("Converter: cannot convert %v to %v", val.Type(), field.Type())
+		}
+		field.Set(val)
+	}
+	return nil
 }

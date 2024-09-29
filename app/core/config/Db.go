@@ -24,7 +24,7 @@ type Db struct {
 	MaxOpenConnect int
 }
 
-func DbConfig() *map[string]DbGroup {
+func DbConfigLoad() *map[string]DbGroup {
 	var instance = make(map[string]DbGroup)
 	err, str := helper.ReadJsonFile("config/db.json")
 	if err != nil {

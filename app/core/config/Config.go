@@ -10,10 +10,10 @@ type Config struct {
 
 func NewConfig() *Config {
 	var config = &Config{}
-	config.Cors = CorsConfig()
-	config.Http = HttpConfig()
-	config.Db = DbConfig()
-	config.Log = LogConfigs()
-	config.Redis = RedisConfig()
+	config.Cors = CorsConfigLoad()
+	config.Http = HttpConfigLoad()
+	config.Db = DbConfigLoad()
+	config.Log = LogConfigLoad()
+	config.Redis = RedisConfigLoad()
 	return config
 }

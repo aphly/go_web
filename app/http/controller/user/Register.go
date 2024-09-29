@@ -8,13 +8,10 @@ import (
 	"go_web/app/helper"
 	"go_web/app/http/model"
 	"go_web/app/res"
-	"strconv"
 	"time"
 )
 
 func Register(c *gin.Context) {
-	//id := c.PostForm("id")
-	//password := c.PostForm("password")
 	userAuthForm := model.UserAuthForm{}
 	err := c.ShouldBind(&userAuthForm)
 	if err != nil {
@@ -50,7 +47,7 @@ func Register(c *gin.Context) {
 		"user": gin.H{
 			"id_type":       userAuth.IdType,
 			"id":            userAuth.Id,
-			"uuid":          strconv.FormatInt(userAuth.Uuid, 10),
+			"uuid":          userAuth.Uuid,
 			"access_token":  user.EnToken(user.AccessToken),
 			"refresh_token": user.EnToken(user.RefreshToken),
 			"nickname":      user.Nickname,

@@ -7,7 +7,6 @@ import (
 	"go_web/app/core/crypt"
 	"go_web/app/http/model"
 	"go_web/app/res"
-	"strconv"
 )
 
 func Login(c *gin.Context) {
@@ -39,7 +38,7 @@ func Login(c *gin.Context) {
 		"user": gin.H{
 			"id_type":       userAuth.IdType,
 			"id":            userAuth.Id,
-			"uuid":          strconv.FormatInt(userAuth.Uuid, 10),
+			"uuid":          userAuth.Uuid,
 			"access_token":  user.EnToken(user.AccessToken),
 			"refresh_token": user.EnToken(user.RefreshToken),
 			"nickname":      user.Nickname,

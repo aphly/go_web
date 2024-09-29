@@ -1,4 +1,5 @@
 {
   "path": "log/",
-  "MaxSize": 10
+  "MaxSize": 10,
+  "MaxBufferSize": 32
 }

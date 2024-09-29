@@ -9,7 +9,7 @@ type Cors struct {
 	Origin []string
 }
 
-func CorsConfig() *Cors {
+func CorsConfigLoad() *Cors {
 	var instance = &Cors{}
 	err, str := helper.ReadJsonFile("config/cors.json")
 	if err != nil {

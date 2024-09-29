@@ -28,7 +28,6 @@ func Redis(config *config.Redis, key string) *redis.Client {
 }
 
 func getRedis(config *config.Redis) *redis.Client {
-
 	return redis.NewClient(&redis.Options{
 		Addr:       config.Addr,
 		Password:   config.Password,

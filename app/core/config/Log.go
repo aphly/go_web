@@ -11,7 +11,7 @@ type Log struct {
 	MaxBufferSize int64
 }
 
-func LogConfigs() *Log {
+func LogConfigLoad() *Log {
 	var instance = &Log{}
 	err, str := helper.ReadJsonFile("config/log.json")
 	if err != nil {

@@ -1,16 +1,16 @@
-package user
+package article
 
 import (
 	"github.com/gin-gonic/gin"
 	"go_web/app/res"
 )
 
-func Test1(c *gin.Context) {
-	res.Json(c)
-	return
-}
+var a1 = make(map[string]string)
 
-func Test(c *gin.Context) {
+func List(c *gin.Context) {
+	key := c.Query("key")
+	val := c.Query("val")
+	a1[key] = val
 	res.Json(c, res.Data(gin.H{
 		"list": []map[string]string{
 			{
@@ -19,16 +19,8 @@ func Test(c *gin.Context) {
 			{
 				"title": "xxxxxx2",
 			},
-			{
-				"title": "xxxxxx3",
-			},
-			{
-				"title": "xxxxxx4",
-			},
-			{
-				"title": "xxxxxx5",
-			},
 		},
+		"map": a1,
 	}))
 	return
 }

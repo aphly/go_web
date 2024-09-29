@@ -8,7 +8,6 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
-	"log"
 	"sync"
 	"time"
 )
@@ -35,12 +34,9 @@ func Mysql(config *config.Db, key string) *gorm.DB {
 }
 
 func getDb(config *config.Db) *gorm.DB {
-	lastFile, err := helper.LogLastFile()
-	if err != nil {
-		panic(err.Error())
-	}
+	var LWriter helper.WriterLog
 	newLogger := logger.New(
-		log.New(lastFile, "\r\n", log.LstdFlags), // io writer
+		LWriter,
 		logger.Config{
 			SlowThreshold:             time.Second, // Slow SQL threshold
 			LogLevel:                  logger.Warn, // Log level
@@ -80,6 +76,6 @@ func getDb(config *config.Db) *gorm.DB {
 	}
 	sqlDB.SetMaxIdleConns(config.MaxIdleConnect)
 	sqlDB.SetMaxOpenConns(config.MaxOpenConnect)
-	sqlDB.SetConnMaxLifetime(time.Hour)
+	sqlDB.SetConnMaxLifetime(time.Second * 120)
 	return db
 }

@@ -3,13 +3,12 @@ package crypt
 import (
 	"bytes"
 	"crypto/aes"
-	"crypto/cipher"
 	"encoding/base64"
 	"go_web/app"
 )
 
 func AesEn(plaintext string) (string, error) {
-	s, err := encryptAES(app.Config.Http.Appkey, plaintext)
+	s, err := EncryptAES256ECB(plaintext, app.Config.Http.Appkey)
 	if err != nil {
 		return "", err
 	}
@@ -17,113 +16,58 @@ func AesEn(plaintext string) (string, error) {
 }
 
 func AesDe(ciphertext string) (string, error) {
-	s, err := DecryptAES(app.Config.Http.Appkey, ciphertext)
+	s, err := DecryptAES256ECB(ciphertext, app.Config.Http.Appkey)
 	if err != nil {
 		return "", err
 	}
 	return s, nil
 }
 
-func encryptAES(key []byte, plaintext string) (string, error) {
+func EncryptAES256ECB(text string, key []byte) (string, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return "", err
 	}
-
-	ecb := NewECBEncrypter(block)
-	paddedPlaintext := pad(plaintext, block.BlockSize())
-	encrypted := make([]byte, len(paddedPlaintext))
-	ecb.CryptBlocks(encrypted, []byte(paddedPlaintext))
-
-	return base64.StdEncoding.EncodeToString(encrypted), nil
+	plaintext := []byte(text)
+	plaintext = pad(plaintext, block.BlockSize())
+	ciphertext := make([]byte, len(plaintext))
+	for start := 0; start < len(plaintext); start += block.BlockSize() {
+		block.Encrypt(ciphertext[start:start+block.BlockSize()], plaintext[start:start+block.BlockSize()])
+	}
+	return base64.URLEncoding.EncodeToString(ciphertext), nil
 }
 
-func DecryptAES(key []byte, ciphertext string) (string, error) {
+func DecryptAES256ECB(ciphertext string, key []byte) (string, error) {
+	data, err := base64.URLEncoding.DecodeString(ciphertext)
+	if err != nil {
+		return "", err
+	}
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return "", err
 	}
-
-	decodedCiphertext, err := base64.StdEncoding.DecodeString(ciphertext)
-	if err != nil {
-		return "", err
+	plaintext := make([]byte, len(data))
+	// 解密
+	for start := 0; start < len(data); start += block.BlockSize() {
+		block.Decrypt(plaintext[start:start+block.BlockSize()], data[start:start+block.BlockSize()])
 	}
-
-	decrypted := make([]byte, len(decodedCiphertext))
-	ecb := NewECBDecrypter(block)
-	ecb.CryptBlocks(decrypted, decodedCiphertext)
-	return string(unpad(decrypted)), nil
+	plaintext = unpad(plaintext)
+	return string(plaintext), nil
 }
 
-// ECBEncrypter 实现 AES-256-ECB 加密模式
-type ECBEncrypter struct {
-	b         cipher.Block
-	blockSize int
+// pad 对数据进行PKCS#7填充
+func pad(buf []byte, blockSize int) []byte {
+	padding := blockSize - (len(buf) % blockSize)
+	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
+	return append(buf, padtext...)
 }
 
-// NewECBEncrypter 创建一个 AES-256-ECB 加密模式的 ECBEncrypter
-func NewECBEncrypter(b cipher.Block) cipher.BlockMode {
-	return &ECBEncrypter{b, b.BlockSize()}
-}
-
-// BlockSize 返回块的大小
-func (x *ECBEncrypter) BlockSize() int { return x.blockSize }
-
-// CryptBlocks 加密块
-func (x *ECBEncrypter) CryptBlocks(dst, src []byte) {
-	if len(src)%x.blockSize != 0 {
-		panic("crypto/cipher: input not full blocks")
+// unpad 去除PKCS#7填充
+func unpad(buf []byte) []byte {
+	length := len(buf)
+	if length == 0 {
+		return buf
 	}
-	if len(dst) < len(src) {
-		panic("crypto/cipher: output smaller than input")
-	}
-	for len(src) > 0 {
-		x.b.Encrypt(dst, src[:x.blockSize])
-		src = src[x.blockSize:]
-		dst = dst[x.blockSize:]
-	}
-}
-
-// ECBDecrypter 实现 AES-256-ECB 解密模式
-type ECBDecrypter struct {
-	b         cipher.Block
-	blockSize int
-}
-
-// NewECBDecrypter 创建一个 AES-256-ECB 解密模式的 ECBDecrypter
-func NewECBDecrypter(b cipher.Block) cipher.BlockMode {
-	return &ECBDecrypter{b, b.BlockSize()}
-}
-
-// BlockSize 返回块的大小
-func (x *ECBDecrypter) BlockSize() int { return x.blockSize }
-
-// CryptBlocks 解密块
-func (x *ECBDecrypter) CryptBlocks(dst, src []byte) {
-	if len(src)%x.blockSize != 0 {
-		panic("crypto/cipher: input not full blocks")
-	}
-	if len(dst) < len(src) {
-		panic("crypto/cipher: output smaller than input")
-	}
-	for len(src) > 0 {
-		x.b.Decrypt(dst, src[:x.blockSize])
-		src = src[x.blockSize:]
-		dst = dst[x.blockSize:]
-	}
-}
-
-// pkcs7 pad填充
-func pad(s string, blockSize int) []byte {
-	padding := blockSize - len(s)%blockSize
-	padText := []byte{byte(padding)}
-	padText = append(padText, bytes.Repeat([]byte{byte(padding)}, padding-1)...)
-	return append([]byte(s), padText...)
-}
-
-// pkcs7 pad解除
-func unpad(s []byte) []byte {
-	length := len(s)
-	unpadding := int(s[length-1])
-	return s[:length-unpadding]
+	unpadding := int(buf[length-1])
+	return buf[:length-unpadding]
 }

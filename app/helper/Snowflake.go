@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"go_web/app/core"
 	"math"
 	"sync"
 	"time"
@@ -36,21 +37,23 @@ type Snowflake struct {
 	sequence      int64
 }
 
-func (s *Snowflake) NextID() int64 {
+func (s *Snowflake) NextID() core.Int64 {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	currentTimestamp := time.Now().UnixNano() / 1e6
 	if s.lastTimestamp == currentTimestamp {
-		time.Sleep(time.Nanosecond)
 		s.sequence++
 		if s.sequence > s.sequenceMax {
-			for currentTimestamp <= s.lastTimestamp {
-				currentTimestamp = time.Now().UnixNano() / 1e6
-			}
+			//for currentTimestamp <= s.lastTimestamp {
+			//	currentTimestamp = time.Now().UnixNano() / 1e6
+			//}
+			time.Sleep(time.Millisecond)
+			currentTimestamp = time.Now().UnixNano() / 1e6
+			s.sequence = 0
 		}
 	} else {
 		s.sequence = 0
 	}
 	s.lastTimestamp = currentTimestamp
-	return ((currentTimestamp - s.epoch) << (s.nodeBits + s.sequenceBits)) | (s.nodeID << s.sequenceBits) | s.sequence
+	return core.Int64(((currentTimestamp - s.epoch) << (s.nodeBits + s.sequenceBits)) | (s.nodeID << s.sequenceBits) | s.sequence)
 }

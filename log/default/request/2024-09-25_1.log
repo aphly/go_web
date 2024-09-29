@@ -1,0 +1,16 @@
+19:03:04 2024/09/25 - 19:03:04 | 200 | 43.9887ms | ::1 | GET |  | 0 | /v1/chat_message?uuid=null&friend_uuid=null | Error #01: http: connection has been hijacked
+
+19:03:39 2024/09/25 - 19:03:39 | 200 | 1.7971ms | ::1 | GET |  | 0 | /v1/chat_message?uuid=93273802959491072&friend_uuid=94363586037551104 | 
+19:04:47 2024/09/25 - 19:04:47 | 200 | 13.0259ms | ::1 | GET |  | 0 | /v1/chat_message?uuid=93273802959491072&friend_uuid=94363586037551104 | 
+19:04:52 2024/09/25 - 19:04:52 | 200 | 1.204ms | ::1 | GET |  | 0 | /v1/chat_message?uuid=93273802959491072&friend_uuid=94363586037551104 | 
+19:05:35 2024/09/25 - 19:05:35 | 200 | 1.1775ms | ::1 | GET |  | 0 | /v1/chat_message?uuid=93273802959491072&friend_uuid=94363586037551104 | 
+19:18:18 2024/09/25 - 19:18:18 | 200 | 19.5157ms | ::1 | GET |  | 0 | /v1/chat_message?uuid=93273802959491072&friend_uuid=94363586037551104&token=sssssss | 
+19:41:58 2024/09/25 - 19:41:58 | 200 | 13.468ms | ::1 | GET |  | 0 | /v1/chat_message?uuid=93273802959491072&friend_uuid=94363586037551104&token=sssssss | 
+19:42:50 2024/09/25 - 19:42:50 | 200 | 1.452ms | ::1 | GET |  | 0 | /v1/chat_message?uuid=93273802959491072&friend_uuid=&token=sssssss | Error #01: http: connection has been hijacked
+
+19:43:07 2024/09/25 - 19:43:07 | 200 | 1.0811ms | ::1 | GET |  | 0 | /v1/chat_message?uuid=93273802959491072&friend_uuid=&token=sssssss | Error #01: http: connection has been hijacked
+
+19:43:37 2024/09/25 - 19:43:37 | 200 | 24.9311ms | ::1 | GET |  | 0 | /v1/chat_message?uuid=93273802959491072&friend_uuid=&token=sssssss | Error #01: http: connection has been hijacked
+
+19:45:48 2024/09/25 - 19:45:48 | 200 | 18.7082ms | ::1 | GET |  | 0 | /v1/chat_message?uuid=93273802959491072&friend_uuid=&token=sssssss | 
+19:46:50 2024/09/25 - 19:46:50 | 200 | 12.9604ms | ::1 | GET |  | 0 | /v1/chat_message?uuid=93273802959491072&friend_uuid=&token=sssssss | 

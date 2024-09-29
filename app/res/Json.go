@@ -1,7 +1,6 @@
 package res
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -40,12 +39,4 @@ func Json(c *gin.Context, options ...OptionFunc) {
 		v(res)
 	}
 	c.JSON(200, res)
-}
-
-func checkError(err error) bool {
-	if err != nil {
-		fmt.Println("Error: ", err)
-		return true
-	}
-	return false
 }

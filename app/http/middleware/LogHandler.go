@@ -34,16 +34,17 @@ func LogHandler() gin.HandlerFunc {
 		}
 
 		endTime := time.Now()
-		param := make([]string, 9)
-		param[0] = endTime.Format("2006/01/02 - 15:04:05")
-		param[1] = strconv.Itoa(c.Writer.Status())
-		param[2] = endTime.Sub(startTime).String()
-		param[3] = c.ClientIP()
-		param[4] = c.Request.Method
-		param[5] = strconv.Itoa(c.Writer.Status())
-		param[6] = c.Errors.ByType(1).String()
-		param[7] = strconv.Itoa(c.Writer.Size())
-		param[8] = path
+		param := []string{
+			endTime.Format("2006/01/02 - 15:04:05"),
+			strconv.Itoa(c.Writer.Status()),
+			endTime.Sub(startTime).String(),
+			c.ClientIP(),
+			c.Request.Method,
+			c.Request.Header.Get("Content-Type"),
+			strconv.Itoa(c.Writer.Size()),
+			path,
+			c.Errors.ByType(1).String(),
+		}
 
 		strLog := strings.Join(param, " | ")
 		app.Log().Request(strLog)

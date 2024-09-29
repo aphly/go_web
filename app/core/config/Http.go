@@ -10,7 +10,7 @@ type Http struct {
 	Appkey []byte
 }
 
-func HttpConfig() *Http {
+func HttpConfigLoad() *Http {
 	var instance = &Http{}
 	err, str := helper.ReadJsonFile("config/http.json")
 	if err != nil {
