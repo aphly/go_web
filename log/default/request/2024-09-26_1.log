@@ -1,4 +1,0 @@
-18:23:12 2024/09/26 - 18:23:12 | 200 | 24.5509ms | ::1 | GET |  | 0 | /v1/chat_message?uuid=93273802959491072&friend_uuid=94363586037551104&token=sssssss | 
-18:26:21 2024/09/26 - 18:26:21 | 200 | 12.6036ms | ::1 | GET |  | 0 | /v1/chat_message?uuid=93273802959491072&friend_uuid=94363586037551104&token=sssssss | 
-18:26:25 2024/09/26 - 18:26:25 | 200 | 603.3µs | ::1 | GET |  | 0 | /v1/chat_message?uuid=93273802959491072&friend_uuid=&token=sssssss | 
-18:27:32 2024/09/26 - 18:27:32 | 200 | 486.5µs | ::1 | GET |  | 0 | /v1/chat_message?uuid=93273802959491072&friend_uuid=&token=sssssss | 

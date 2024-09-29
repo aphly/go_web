@@ -1,4 +1,0 @@
-2024-09-21 14:35:31 D:/go/go_web/test/Migrate_test.go:25 Error 1071 (42000): Specified key was too long; max key length is 1000 bytes
-[0.000ms] [rows:0] CREATE TABLE `chat` (`id` bigint AUTO_INCREMENT,`uuid` bigint,`subject` varchar(255),`min_max` varchar(255),`last_message` varchar(1024),`updated_at` bigint,`created_at` bigint,PRIMARY KEY (`id`),INDEX `idx_chat_uuid` (`uuid`),INDEX `idx_chat_min_max` (`min_max`),INDEX `idx_chat_updated_at` (`updated_at`))
-2024-09-21 14:37:04 D:/go/go_web/test/Migrate_test.go:25 Error 1071 (42000): Specified key was too long; max key length is 1000 bytes
-[0.592ms] [rows:0] CREATE TABLE `chat` (`id` bigint AUTO_INCREMENT,`uuid` bigint,`subject` varchar(255),`min_max` varchar(255),`last_message` varchar(512),`updated_at` bigint,`created_at` bigint,PRIMARY KEY (`id`),INDEX `idx_chat_min_max` (`min_max`),INDEX `idx_chat_updated_at` (`updated_at`),INDEX `idx_chat_uuid` (`uuid`))
